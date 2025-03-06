@@ -1,0 +1,141 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const MyHomePage(title: 'Tic Tac Toe'),
+      
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  late List<String> broad;
+  late String currentplayer;
+  late String winner;
+  late bool isDraw;
+
+  void _initializeGame() {
+    broad = List.generate(9, (_) =>'');
+    currentplayer = 'X';
+    winner = '';
+    isDraw = false;
+  }
+  @override
+  void initState(){
+    super.initState();
+    _initializeGame();
+  }
+
+  void _handleTap(int index){
+    if(broad[index] != '' || winner != ''){
+      return;
+    }
+    setState(() {
+      broad[index] = currentplayer;
+      if (_chechWinner(currentplayer)){
+        winner = currentplayer;
+      } else if (_checkDraw()){
+        isDraw = true;
+      } else {
+        currentplayer = currentplayer == 'X' ? 'O' : 'X';
+      }
+    });
+  }
+
+
+  bool _checkDraw(){
+    return broad.every((item) => item != '');
+  }
+
+  bool _chechWinner(String player) {
+    for (int i=0; i<3; i++){
+      if (broad[i] == player && broad[i + 3] == player && broad[i + 6] == player){
+        return true;
+      }
+      if (broad[i * 3] == player && broad[i * 3 + 3] == player && broad[i * 3 + 6] == player){
+        return true;
+      }
+      if (broad[0] == player && broad[4] == player && broad[8] == player){
+        return true;
+      }
+      if (broad[2] == player && broad[4] == player && broad[6] == player){
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Column(
+
+        children: [
+          winner != ''? Text('Winner: $winner', style:  TextStyle(fontSize: 40),)
+          : isDraw ? Text('Draw', style: TextStyle(fontSize: 40),)
+          : Text('Current Player: $currentplayer', style: TextStyle(fontSize: 40),),
+          Text(
+            'Player or Winner',
+            style:  TextStyle(fontSize: 40),
+            ),
+            Expanded(child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3), 
+                itemCount: 9,
+                itemBuilder: (context, index){
+                  return GridTile(child: Container(
+                    margin: EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black)
+                    ),
+                    child:  MaterialButton(
+                      onPressed: () {_handleTap(index);},
+                      child: Text(broad[index], style: TextStyle(fontSize: 30),),
+                    ),
+                  ));
+                })),
+          MaterialButton(
+            onPressed: () {
+              setState(() {
+                _initializeGame();
+              });
+            },
+            child: Text(
+              'Reset Game',
+              style: TextStyle(fontSize: 40),
+              )
+          ),
+      ],
+      )
+    );
+  }
+}
+
